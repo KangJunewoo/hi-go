@@ -6,10 +6,16 @@ import (
 	"net/http"
 )
 
+type requestResult struct {
+	url    string
+	status string
+}
+
 var errRequestFailed = errors.New("Request failed")
 
 func main() { // 메인함수는 고루틴을 기다리지 않음. 메인이 먼저 끝나면 남아있는 고루틴도 소멸.
-	var results = make(map[string]string)
+	results := make(map[string]string)
+	c := make(chan requestResult)
 
 	urls := []string{
 		"https://www.airbnb.com/",
@@ -21,30 +27,27 @@ func main() { // 메인함수는 고루틴을 기다리지 않음. 메인이 먼
 		"https://www.instagram.com/",
 		"https://academy.nomadcoders.co/",
 	}
-
-	// var results map[string]string  // 이래버리면 맵이 초기화 안되어있어서 에러남.
-	results["gello"] = "Hello"
 	for _, url := range urls {
-		result := "OK"
-		err := hitURL(url)
-		if err != nil {
-			result = "FAILED"
-		}
-		results[url] = result
+		go hitURL(url, c)
 	}
-	for url, result := range results {
-		fmt.Println(url, result)
+
+	for i := 0; i < len(urls); i++ {
+		result := <-c
+		results[result.url] = result.status
+	} // 이야... 확실히 빠르다.
+
+	for url, status := range results {
+		fmt.Println(url, status)
 	}
 
 }
 
-func hitURL(url string) error {
+func hitURL(url string, c chan<- requestResult) { // 이렇게 chan 대신 chan<-을 정해놓으면 보내기만 할 수 있다고 못박아놓을 수 있음.
 	fmt.Println("Checking:", url)
 	resp, err := http.Get(url)
 	if err != nil || resp.StatusCode >= 400 {
-		fmt.Println(err, resp.StatusCode)
-		return errRequestFailed
+		c <- requestResult{url: url, status: "FAILED"}
+	} else {
+		c <- requestResult{url: url, status: "OK"}
 	}
-
-	return nil
 }

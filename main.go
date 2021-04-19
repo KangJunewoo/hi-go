@@ -8,7 +8,7 @@ import (
 
 var errRequestFailed = errors.New("Request failed")
 
-func main() {
+func main() { // 메인함수는 고루틴을 기다리지 않음. 메인이 먼저 끝나면 남아있는 고루틴도 소멸.
 	var results = make(map[string]string)
 
 	urls := []string{
@@ -35,6 +35,7 @@ func main() {
 	for url, result := range results {
 		fmt.Println(url, result)
 	}
+
 }
 
 func hitURL(url string) error {

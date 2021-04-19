@@ -1,55 +1,49 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-
-	"github.com/KangJunewoo/hi-go/mydict"
+	"net/http"
 )
 
+var errRequestFailed = errors.New("Request failed")
+
 func main() {
+	var results = make(map[string]string)
 
-	// bank project
-	// account := accounts.NewAccount("nico")
-	// account.Deposit(10)
-	// fmt.Println(account.Balance())
-	// err := account.Withdraw(20)
-	// if err != nil {
-	// 	log.Println(err)
-	// }
-	// fmt.Println(account.Balance(), account.Owner())
-	// fmt.Println(account)
-
-	// Dictionary project
-	// dictionary := mydict.Dictionary{"hello": "world"}
-	// fmt.Println(dictionary)
-	// definition, err := dictionary.Search("second")
-	// if err != nil {
-	// 	fmt.Println(err)
-	// } else {
-	// 	fmt.Println(definition)
-	// }
-	// dictionary := mydict.Dictionary{}
-	// word := "hello"
-	// definition := "Greeting"
-	// err2 := dictionary.Add(word, definition)
-	// if err2 != nil {
-	// 	fmt.Println(err2)
-	// }
-
-	dictionary := mydict.Dictionary{}
-	baseWord := "hello"
-	dictionary.Add(baseWord, "First")
-	// err := dictionary.Update(baseWord, "Second")
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-	dictionary.Search(baseWord)
-	dictionary.Delete(baseWord)
-	word, err := dictionary.Search(baseWord)
-	if err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Println(word)
+	urls := []string{
+		"https://www.airbnb.com/",
+		"https://www.google.com/",
+		"https://www.amazon.com/",
+		"https://www.reddit.com/",
+		"https://soundcloud.com/",
+		"https://www.facebook.com/",
+		"https://www.instagram.com/",
+		"https://academy.nomadcoders.co/",
 	}
 
+	// var results map[string]string  // 이래버리면 맵이 초기화 안되어있어서 에러남.
+	results["gello"] = "Hello"
+	for _, url := range urls {
+		result := "OK"
+		err := hitURL(url)
+		if err != nil {
+			result = "FAILED"
+		}
+		results[url] = result
+	}
+	for url, result := range results {
+		fmt.Println(url, result)
+	}
+}
+
+func hitURL(url string) error {
+	fmt.Println("Checking:", url)
+	resp, err := http.Get(url)
+	if err != nil || resp.StatusCode >= 400 {
+		fmt.Println(err, resp.StatusCode)
+		return errRequestFailed
+	}
+
+	return nil
 }

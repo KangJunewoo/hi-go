@@ -20,3 +20,10 @@ $ go mod init
 고루틴 - 메인함수가 정보를 주고받기 위해 쓰는 통로.
 
 와.. 파이썬이랑 비교가 안되게 빠르다.
+
+## goquery
+고의 뷰티풀숩 같은거.  
+```
+$ go get github.com/PuerkitoBio/goquery
+```
+로 다운로드 가능.
